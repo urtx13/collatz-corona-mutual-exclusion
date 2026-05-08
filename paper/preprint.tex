@@ -1,0 +1,141 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\theoremstyle{plain}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{proposition}{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{observation}{Observation}
+\newtheorem{remark}{Remark}
+
+\title{Mutual Exclusion of Local Divisibility Constraints \\ in the Collatz Cycle Equation}
+\author{Oriol Corcoll Arias}
+\date{May 2026 \\ \emph{Working draft}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We provide computational evidence that the standard heuristic of Crandall (1978) for the cyclic component of the Collatz problem fails in a structured way. For all 22 admissible parity patterns $(x, y)$ enumerated exhaustively (total composition count $\sum |\Sigma| \approx 1.77 \times 10^9$), the only solutions to the integrality condition $(2^x - 3^y) \mid C(y, \vec\sigma)$ correspond to the trivial cycle $a_i = 2$ at $x = 2y$. Crandall's heuristic predicts an aggregate of $7.21$ non-trivial cycle solutions; observed: $0$ ($p \approx 7 \times 10^{-4}$). The deviation is structurally explained by mutual exclusion of local divisibility events: when $2^x - 3^y$ has multiple prime factors, the marginal events $\{p_i \mid C\}$ each occur at their expected Crandall rate, but their joint occurrence is empirically empty. Across 5 cases with composite $2^x - 3^y$, the independence prediction sums to $8.86$ joint occurrences; observed: $0$ ($p \approx 1.4 \times 10^{-4}$). The object studied is the \emph{Collatz corona} of Belaga--Mignotte (1998); the explicit mutual-exclusion observation does not appear, to the author's knowledge, in the prior literature surveyed.
+\end{abstract}
+
+\section{Setup and prior work}
+
+The accelerated Collatz map $T'(n) = (3n+1)/2^{v_2(3n+1)}$ on odd integers has cyclic orbits parameterized by sequences $0 = \sigma_0 < \sigma_1 < \cdots < \sigma_{y-1} < x$ via the cycle equation \cite{lagarias1985}
+\begin{equation}\label{eq:cycle}
+n_0 (2^x - 3^y) = C(y, \vec\sigma) := \sum_{k=0}^{y-1} 3^{y-1-k} 2^{\sigma_k}.
+\end{equation}
+A non-trivial cycle requires $2^x > 3^y$ and $(2^x - 3^y) \mid C(y, \vec\sigma)$. With composition $a_k = \sigma_k - \sigma_{k-1}$ and $a_y = x - \sigma_{y-1}$, all $a_k \ge 1$ and $\sum a_k = x$. Write $\Sigma(x, y)$ for the set of admissible patterns; $|\Sigma(x, y)| = \binom{x-1}{y-1}$.
+
+Belaga and Mignotte \cite{belaga1998} introduced this framework explicitly: the integer $2^x - 3^y$ is a \emph{Collatz number}, and the set $\{C(y, \vec\sigma) : \vec\sigma \in \Sigma(x, y)\}$ is its \emph{Collatz corona}. The trivial cycle $n_0 = 1$ corresponds to $a_k = 2$ for all $k$, requiring $x = 2y$.
+
+The standard heuristic \cite{crandall1978} models $C(y, \vec\sigma) \bmod (2^x - 3^y)$ as uniformly distributed, giving expected cycle count $E_{\mathrm{Cr}}(x, y) = \binom{x-1}{y-1} / (2^x - 3^y)$ per pair.
+
+Existing rigorous results on cycles approach the problem via \emph{linear forms in logarithms} (Baker--W\"ustholz, Laurent--Mignotte--Nesterenko). Steiner \cite{steiner1977} excluded $1$-cycles. Simons and de Weger \cite{sdw2005} proved any non-trivial cycle has at least $m \ge 68$ local minima; Hercher \cite{hercher2022} raised this to $m \ge 92$. Belaga \cite{belaga2003} gave polynomial upper bounds on the \emph{number} of $(3x+d)$-cycles of given odd-length. Belaga and Mignotte \cite{belaga2006} computed primitive cycles for $1 \le d \le 19{,}999$.
+
+Recently, Dhiman and Pandey \cite{dhiman2026} showed that the divisibility predicate $\mathcal{D}_y = \{(x, C) \in \mathbb{N}^2 : (2^x - 3^y) \mid C\}$ is not Presburger-definable.
+
+\section{Empirical observations}
+
+\paragraph{Aggregate rate.} We enumerated $\Sigma(x, y)$ exhaustively for 22 pairs with $1.77 \times 10^9$ total compositions; see Table~\ref{tab:agg}. Across non-trivial pairs ($x \ne 2y$),
+\[
+\sum_{(x,y)\,\ne\, (2y,y)} E_{\mathrm{Cr}}(x, y) \approx 7.21.
+\]
+Observed non-trivial solutions: $0$. Modeling cases as independent Poisson, $P(\text{count}=0) \approx e^{-7.21} \approx 7.4 \times 10^{-4}$.
+
+\begin{table}[h]
+\centering\small
+\caption{Selected enumerated pairs. Subset of 22 cases. ``$E_\text{Cr}$'' is the Crandall expected zero count.}
+\label{tab:agg}
+\begin{tabular}{rrrrrr}
+\toprule
+$y$ & $x$ & $|\Sigma|$ & $2^x - 3^y$ & $E_\text{Cr}$ & non-triv. zeros \\
+\midrule
+5 & 8 & 35 & 13 & 2.69 & 0 \\
+9 & 15 & 3{,}003 & 13{,}085 & 0.23 & 0 \\
+10 & 16 & 5{,}005 & 6{,}487 & 0.77 & 0 \\
+12 & 20 & 75{,}582 & 517{,}135 & 0.15 & 0 \\
+15 & 24 & 817{,}190 & 2{,}428{,}309 & 0.34 & 0 \\
+16 & 26 & 3{,}268{,}760 & 24{,}062{,}143 & 0.14 & 0 \\
+17 & 27 & 5{,}311{,}735 & 5{,}077{,}565 & 1.05 & 0 \\
+19 & 31 & 86{,}493{,}225 & 985{,}222{,}181 & 0.09 & 0 \\
+21 & 34 & 573{,}166{,}440 & 6{,}719{,}515{,}981 & 0.09 & 0 \\
+22 & 35 & 927{,}983{,}760 & 2{,}978{,}678{,}759 & 0.31 & 0 \\
+\midrule
+\multicolumn{4}{r}{\textit{aggregate $\sum E_\text{Cr}$ over all 22 enumerated non-trivial pairs:}} & 7.21 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Mechanism: marginal vs.\ joint.} Define $A_p := \{\vec\sigma \in \Sigma(x, y) : p \mid C(y, \vec\sigma)\}$. For $(x, y) = (24, 15)$, $2^x - 3^y = 13 \cdot 186{,}793$:
+\[
+|A_{13}| = 62{,}775,\quad |A_{186793}| = 50,\quad |A_{13} \cap A_{186793}| = 0.
+\]
+Independence prediction: $|A_{13}| \cdot |A_{186793}| / |\Sigma| \approx 3.84$.
+
+\begin{proposition}[Mutual exclusion, observed]\label{prop:exclusion}
+Across the 5 enumerated pairs $(15,9)$, $(16,10)$, $(20,12)$, $(24,15)$, $(26,16)$ with composite $2^x - 3^y$, the aggregate independence prediction is $8.86$. Observed joint occurrences: $0$. Modeled as Poisson, $P \approx e^{-8.86} \approx 1.4 \times 10^{-4}$.
+\end{proposition}
+
+\section{Conjecture}
+
+\begin{conjecture}\label{conj:main}
+For every $(x, y) \in \mathbb{N}^2$ with $2^x > 3^y$ and $(x, y) \ne (2y, y)$,
+\[
+\bigl\{C(y, \vec\sigma) : \vec\sigma \in \Sigma(x, y)\bigr\} \,\cap\, (2^x - 3^y)\,\mathbb{Z} \;=\; \emptyset.
+\]
+\end{conjecture}
+
+If true, Conjecture~\ref{conj:main} implies non-existence of non-trivial Collatz cycles by purely structural means, complementing the asymptotic length bounds of Steiner--Simons--de Weger--Hercher.
+
+\section{Position within the literature}
+
+The Collatz number / Collatz corona framework dates from Belaga--Mignotte 1998 \cite{belaga1998}. Existing rigorous results follow two complementary strategies:
+
+\noindent\emph{Diophantine bounds via linear forms in logarithms} \cite{steiner1977,sdw2005,simons2008,hercher2022}: lower bounds on cycle length $m$ via Baker-type estimates on $|x \log 2 - y \log 3|$.
+
+\noindent\emph{Combinatorial enumeration} \cite{belaga2003,belaga2006,holden2014}: upper bounds on the number of $(3x+d)$-cycles of given odd-length, and explicit listing of primitive cycles for $d \ge 1$.
+
+The present note proposes a third angle: \emph{mutual exclusion} between distinct prime divisors of the Collatz number, observed empirically as a deviation from Crandall's heuristic. To the author's knowledge, this specific phenomenon has not been stated in the prior literature surveyed (Belaga--Mignotte 1998, 2000, 2006; Belaga 2003; Simons--de Weger 2005; Simons 2008; Holden 2014; Hercher 2018, 2022; Dhiman--Pandey 2026). The author has not, however, performed an exhaustive bibliographic survey, and any precedent will be acknowledged in subsequent versions.
+
+A proof of Conjecture~\ref{conj:main} would presumably require analytic input beyond combinatorial counting -- e.g.\ subspace-theorem-type bounds on $S$-unit sums with $S = \{2, 3\}$ \cite{schmidt1980,evertse1999} -- since the relevant deviation lives in the conjunction of local arithmetic constraints, which Dhiman--Pandey \cite{dhiman2026} show cannot be captured within Presburger arithmetic.
+
+\section{Limitations}
+
+\begin{enumerate}\itemsep0pt
+\item Enumeration is bounded by $|\Sigma| \le 10^9$ on a single machine; convergent pairs $(x, y)$ of $\log_2 3$ beyond $(65, 41)$ are inaccessible by exhaustive search.
+\item The mutual exclusion mechanism is verified explicitly across 5 cases with composite $2^x - 3^y$. Verification across additional composite-diff cases is the immediate next step.
+\item The mechanism behind marginal-versus-joint discrepancy is empirically confirmed but not derived from a stated $p$-adic principle.
+\item Conjecture~\ref{conj:main} concerns only the cyclic component of Collatz. The divergent component is independent and unaffected.
+\item The independence-of-cases assumption underlying our Poisson p-values is an approximation.
+\end{enumerate}
+
+\paragraph{Code and data.}
+Available at \url{https://github.com/<USER>/collatz-mutual-exclusion}.
+
+\begin{thebibliography}{99}
+\small
+\bibitem{belaga1998} E.~G.~Belaga, M.~Mignotte. \emph{Embedding the $3x+1$ conjecture in a $3x+d$ context.} Experimental Math.\ \textbf{7} (1998), 145--151.
+\bibitem{belaga2003} E.~G.~Belaga. \emph{Effective polynomial upper bounds to perigees and numbers of $(3x+d)$-cycles of a given oddlength.} Acta Arith.\ \textbf{106} (2003), 197--206.
+\bibitem{belaga2006} E.~G.~Belaga, M.~Mignotte. \emph{The Collatz Problem and Its Generalizations: Experimental Data. Table 1. Primitive Cycles of $(3n+d)$-mappings.} HAL hal-00129727 (2006).
+\bibitem{crandall1978} R.~E.~Crandall. \emph{On the ``$3x+1$'' problem.} Math.\ Comp.\ \textbf{32} (1978), 1281--1292.
+\bibitem{dhiman2026} M.~Dhiman, R.~Pandey. \emph{2-Adic Obstructions to Presburger-Definable Characterizations of Collatz Cycles.} arXiv:2601.12772, January 2026.
+\bibitem{evertse1999} J.-H.~Evertse, H.~P.~Schlickewei. \emph{The absolute subspace theorem and linear equations with unknowns from a multiplicative group.} In: Number theory in progress, de Gruyter (1999).
+\bibitem{hercher2022} C.~Hercher. \emph{There are no Collatz $m$-Cycles with $m \le 91$.} arXiv:2201.00406 (2022).
+\bibitem{holden2014} D.~Holden. \emph{Results on the $3x+1$ and $3x+d$ conjectures.} Fibonacci Quarterly (preprint).
+\bibitem{lagarias1985} J.~C.~Lagarias. \emph{The $3x+1$ problem and its generalizations.} Amer.\ Math.\ Monthly \textbf{92} (1985), 3--23.
+\bibitem{schmidt1980} W.~M.~Schmidt. \emph{Diophantine approximation.} Lecture Notes in Math.\ \textbf{785}, Springer, 1980.
+\bibitem{simons2008} J.~L.~Simons. \emph{On the (non-)existence of $m$-cycles for generalized Syracuse sequences.} Acta Arith.\ \textbf{131} (2008), 217--254.
+\bibitem{sdw2005} J.~Simons, B.~de Weger. \emph{Theoretical and computational bounds for $m$-cycles of the $3n+1$ problem.} Acta Arith.\ \textbf{117} (2005), 51--70.
+\bibitem{steiner1977} R.~P.~Steiner. \emph{A theorem on the Syracuse problem.} Proc.\ 7th Manitoba Conf.\ Numer.\ Math.\ (1977), Utilitas Math., Winnipeg, 1978, 553--559.
+\bibitem{tao2022} T.~Tao. \emph{Almost all Collatz orbits attain almost bounded values.} Forum of Math., Pi \textbf{10} (2022), e12.
+\end{thebibliography}
+
+\end{document}
