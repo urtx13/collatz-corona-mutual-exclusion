@@ -139,7 +139,7 @@ data/mutual_exclusion_24_15.csv
 
 ## Main verified examples
 
-| `(y,x)` | `|Sigma|` | `2^x - 3^y` | `E_Cr` | non-triv. zeros |
+| `(y,x)` | `Sigma size` | `2^x - 3^y` | `E_Cr` | non-triv. zeros |
 |---:|---:|---:|---:|---:|
 | (5, 8) | 35 | 13 | 2.692 | 0 |
 | (10, 16) | 5,005 | 6,487 | 0.772 | 0 |
