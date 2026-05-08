@@ -1,108 +1,198 @@
-# Collatz Cycle Equation: Mutual Exclusion of Local Divisibilities
+# Local Divisibility and Mutual Exclusion in the Collatz Corona
 
-Computational evidence and a conjecture concerning the cyclic component of the Collatz problem.
+This repository accompanies the working research note:
+
+**Local Divisibility and Mutual Exclusion in the Collatz Corona: A Research Note**  
+Oriol Corcoll Arias, May 2026.
+
+This repository contains code, data, logs, and a LaTeX preprint reporting finite exhaustive computations concerning local divisibility in the **Collatz corona**. It does **not** prove the Collatz conjecture or the absence of non-trivial Collatz cycles.
 
 ## Summary
 
-This repository contains the code, data, and preprint accompanying an empirical study of the **Collatz corona** (Belaga-Mignotte 1998) and its intersection with multiples of the corresponding **Collatz number** $2^x - 3^y$.
+The Collatz corona, in the terminology of Belaga--Mignotte, is the finite set of cycle coefficients
 
-For all 22 admissible parity patterns $(x, y)$ with $2^x > 3^y$ and total composition count $\sum |\Sigma| \approx 1.77 \times 10^9$ exhaustively enumerated, the only patterns producing $C(y, \vec\sigma) \equiv 0 \pmod{2^x - 3^y}$ correspond to the trivial cycle $a_i = 2$ at $x = 2y$.
+$begin:math:display$
+\\mathcal\{C\}\(x\,y\)\=\\\{C\(y\,\\vec\{\\sigma\}\)\:\\vec\{\\sigma\}\\in\\Sigma\(x\,y\)\\\}\,
+$end:math:display$
 
-The Crandall heuristic (1978) predicts an aggregate of $\sim 7.21$ non-trivial cycle solutions across this sample; observed: $0$ ($p \approx 7 \times 10^{-4}$).
+where
 
-The deviation is explained structurally by **mutual exclusion** between local divisibility events: when $2^x - 3^y$ has multiple prime factors, the marginal events $\{p_i \mid C\}$ each occur at their expected Crandall rate, but their joint occurrence is empirically empty.
+$begin:math:display$
+C\(y\,\\vec\{\\sigma\}\)\=\\sum\_\{k\=0\}\^\{y\-1\}3\^\{y\-1\-k\}2\^\{\\sigma\_k\}\.
+$end:math:display$
 
-## Author
+The computational question studied here is whether this corona contains a multiple of its associated Collatz number
 
-Oriol Corcoll Arias (working draft, May 2026)
+$begin:math:display$
+2\^x\-3\^y\.
+$end:math:display$
+
+Across 22 tested parameter pairs and 1,769,706,522 exhaustively enumerated admissible patterns outside the trivial diagonal, no non-trivial zero residue was found for
+
+$begin:math:display$
+C\(y\,\\vec\{\\sigma\}\)\\equiv 0 \\pmod\{2\^x\-3\^y\}\.
+$end:math:display$
+
+A naive Crandall-type uniformity benchmark predicts approximately 7.21 non-trivial zero residues over the tested rows. This is used only as a nominal benchmark, not as a rigorous probability model.
+
+The central local-divisibility example is $begin:math:text$\(x\,y\)\=\(24\,15\)$end:math:text$, where
+
+$begin:math:display$
+2\^\{24\}\-3\^\{15\}\=13\\cdot 186793\.
+$end:math:display$
+
+Divisibility by each factor occurs separately on the corona, but not simultaneously on the same admissible pattern:
+
+- $begin:math:text$\|A\_\{13\}\| \= 62\,775$end:math:text$
+- $begin:math:text$\|A\_\{186793\}\| \= 50$end:math:text$
+- $begin:math:text$\|A\_\{13\}\\cap A\_\{186793\}\| \= 0$end:math:text$
+
+where
+
+$begin:math:display$
+A\_q\=\\\{\\vec\{\\sigma\}\\in\\Sigma\(24\,15\)\:q\\mid C\(15\,\\vec\{\\sigma\}\)\\\}\.
+$end:math:display$
+
+A naive local-independence benchmark would predict
+
+$begin:math:display$
+\\frac\{\|A\_\{13\}\|\\\,\|A\_\{186793\}\|\}\{\|\\Sigma\(24\,15\)\|\}\\approx 3\.8409
+$end:math:display$
+
+simultaneous occurrences.
+
+Across five tested squarefree composite cases, the aggregate naive local-independence benchmark is approximately 8.86 simultaneous local hits; observed: 0.
+
+These observations motivate a restricted zero-avoidance conjecture for the Collatz corona. The note is computational and conjectural; it is not a proof.
 
 ## Repository structure
 
-```
+```text
 .
-├── README.md                  this file
-├── LICENSE                    MIT license
+├── README.md
+├── LICENSE
+├── HOW_TO_PUBLISH.md
+├── reproduce_all.sh
 ├── paper/
-│   ├── preprint.tex           LaTeX source
-│   └── preprint.pdf           compiled preprint (3 pages)
+│   ├── preprint.tex
+│   └── preprint.pdf
 ├── src/
-│   ├── enumerate_compositions.c   fast C enumerator (uint64, ~10^7 patterns/s)
-│   ├── verify_recurrence.py       Python verifier of the dual recurrence
-│   ├── mutual_exclusion.py        marginal-vs-joint analysis
-│   └── adversarial_battery.py     test suite for the conjecture (Sturmian etc.)
+│   ├── enumerate_compositions.c
+│   ├── mutual_exclusion.py
+│   └── verify_27_17.py
 ├── data/
-│   └── results_summary.csv    table of all (x, y) pairs enumerated
+│   ├── results_summary.csv
+│   └── mutual_exclusion_24_15.csv
 └── results/
-    └── log_runs.txt           raw output of enumeration runs
+    └── log_runs.txt
 ```
 
 ## Quick start
 
-### Reproduce the main empirical table
+Compile the C enumerator:
 
 ```bash
-gcc -O3 -o enumerate src/enumerate_compositions.c
-./enumerate 27 17        # ~6 seconds
-./enumerate 35 22        # ~80 seconds
+gcc -O3 -o enumerate_compositions src/enumerate_compositions.c
 ```
 
-Expected output: `Zeros: 0 (non-trivial: none)` for all `(x, y)` with `x != 2y`.
-
-### Verify the dual 3-adic recurrence
+Run selected cases:
 
 ```bash
-python3 src/verify_recurrence.py
+./enumerate_compositions 27 17
+./enumerate_compositions 35 22
 ```
 
-This computes $R_k(\vec\sigma) \equiv 2^{-S_k}\sum_{j=0}^{k-1} 3^{k-1-j} 2^{S_j} \pmod{3^k}$ via the recurrence $R_{k+1} \equiv 2^{-a_{k+1}}(3 R_k + 1) \pmod{3^{k+1}}$ and verifies the formula identity.
+Expected output for these non-trivial cases:
 
-### Reproduce the mutual exclusion observation at (24, 15)
+```text
+Non-trivial zeros: 0
+```
+
+Run the local mutual-exclusion analysis:
 
 ```bash
 python3 src/mutual_exclusion.py
 ```
 
-Outputs $|A_{13}|$, $|A_{186793}|$, $|A_{13} \cap A_{186793}|$ and the independence prediction.
+Expected output includes:
 
-## Main observations
+```text
+|A_13| = 62775
+|A_186793| = 50
+|A_13 ∩ A_186793| = 0
+independence prediction ≈ 3.8409
+```
 
-| $(y, x)$ | $|\Sigma|$ | $2^x - 3^y$ | $E_{\text{Crandall}}$ | non-triv. zeros |
+Run the independent Python verification of the critical case $begin:math:text$\(x\,y\)\=\(27\,17\)$end:math:text$:
+
+```bash
+python3 src/verify_27_17.py
+```
+
+## Main data files
+
+The main summary table is:
+
+```text
+data/results_summary.csv
+```
+
+Raw logs of larger runs are in:
+
+```text
+results/log_runs.txt
+```
+
+The local-divisibility data for the central case $begin:math:text$\(x\,y\)\=\(24\,15\)$end:math:text$ are in:
+
+```text
+data/mutual_exclusion_24_15.csv
+```
+
+## Main verified examples
+
+| $begin:math:text$\(y\,x\)$end:math:text$ | $begin:math:text$\|\\Sigma\|$end:math:text$ | $begin:math:text$2\^x\-3\^y$end:math:text$ | $begin:math:text$E\_\{\\mathrm\{Cr\}\}$end:math:text$ | non-triv. zeros |
 |---:|---:|---:|---:|---:|
-| (5, 8) | 35 | 13 | 2.69 | 0 |
-| (10, 16) | 5,005 | 6,487 | 0.77 | 0 |
-| (17, 27) | 5,311,735 | 5,077,565 | 1.05 | 0 |
-| (22, 35) | 927,983,760 | 2,978,678,759 | 0.31 | 0 |
-| **aggregate (22 pairs)** | **1.77 × 10⁹** | — | **7.21** | **0** |
+| (5, 8) | 35 | 13 | 2.692 | 0 |
+| (10, 16) | 5,005 | 6,487 | 0.772 | 0 |
+| (17, 27) | 5,311,735 | 5,077,565 | 1.046 | 0 |
+| (22, 35) | 927,983,760 | 2,978,678,759 | 0.312 | 0 |
 
-**Mutual exclusion** at $(y, x) = (15, 24)$, $2^x - 3^y = 13 \cdot 186793$:
-- $|A_{13}| = 62{,}775$ (rate $0.0768$, marginal expected $\approx 0.077$)
-- $|A_{186793}| = 50$ (rate $6.1 \cdot 10^{-5}$, marginal expected $\approx 5.4 \cdot 10^{-6}$)
-- Independence prediction: $|A_{13}| \cdot |A_{186793}| / |\Sigma| \approx 3.84$
-- **Observed**: $|A_{13} \cap A_{186793}| = 0$
+The full 22-row table is provided in `data/results_summary.csv`.
 
 ## Conjecture
 
-For every $(x, y) \in \mathbb{N}^2$ with $2^x > 3^y$ and $(x, y) \ne (2y, y)$:
-$$\bigl\{C(y, \vec\sigma) : \vec\sigma \in \Sigma(x, y)\bigr\} \cap (2^x - 3^y) \mathbb{Z} = \emptyset.$$
+For every $begin:math:text$\(x\,y\)\\in\\mathbb\{N\}\^2$end:math:text$ with $begin:math:text$2\^x\>3\^y$end:math:text$ and $begin:math:text$\(x\,y\)\\ne\(2y\,y\)$end:math:text$,
 
-If true, this implies non-existence of non-trivial Collatz cycles by purely structural means.
+$begin:math:display$
+\\\{C\(y\,\\vec\{\\sigma\}\)\:\\vec\{\\sigma\}\\in\\Sigma\(x\,y\)\\\}
+\\cap
+\(2\^x\-3\^y\)\\mathbb\{Z\}
+\=
+\\emptyset\.
+$end:math:display$
+
+Equivalently, outside the trivial diagonal, the Collatz corona does not contain a multiple of its corresponding Collatz number.
+
+This conjecture is equivalent to the non-existence of non-trivial accelerated Collatz cycles. It does not address divergent orbits.
 
 ## Relation to prior work
 
-- **Belaga, Mignotte** (1998): introduced the *Collatz number* $2^j - 3^k$ and the *Collatz corona*; the object studied here is theirs.
-- **Belaga** (2003): polynomial upper bound on the *number* of $(3x+d)$-cycles of given odd-length. Different result: bounds, not emptiness.
-- **Belaga, Mignotte** (2006): exhaustive enumeration of primitive cycles for $1 \le d \le 19{,}999$. Enumerate cycles, not full coronas.
-- **Steiner** (1977), **Simons–de Weger** (2005), **Simons** (2008), **Hercher** (2018, 2022): lower bounds on cycle length via Baker–Wüstholz / Laurent linear forms in logarithms (current: $m \ge 92$ local minima).
-- **Dhiman, Pandey** (arXiv:2601.12772, January 2026): the divisibility predicate $\mathcal{D}_y$ is not Presburger-definable.
+- **Böhm--Sontacchi** and **Lagarias**: classical cycle-equation formulation.
+- **Belaga--Mignotte**: Collatz number / Collatz corona framework; the object studied here is theirs.
+- **Crandall**: heuristic benchmark used here only nominally.
+- **Steiner**, **Eliahou**, **Simons--de Weger**, **Simons**, **Hercher**: cycle-length bounds and generalized Syracuse settings.
+- **Dhiman--Pandey**: non-Presburger-definability of the unrestricted divisibility predicate.
 
-To the author's knowledge, the explicit *mutual exclusion* observation between distinct prime factors of $2^x - 3^y$, and the resulting conjecture on emptiness of the corona modulo its Collatz number for $d = 1$, are not stated in this prior literature. Any precedent will be acknowledged in subsequent versions.
+To the author's knowledge, the explicit local mutual-exclusion observation recorded here has not been isolated in the literature checked so far. The literature survey is preliminary, and any precedent will be acknowledged in later versions.
 
 ## Limitations
 
-1. Enumeration is bounded by $|\Sigma| \le 10^9$ on a single machine. The convergent pair $(x, y) = (485, 306)$ of $\log_2 3$, where $|\Sigma| \approx 10^{140}$, is computationally inaccessible.
-2. The mutual exclusion mechanism is verified explicitly only at $(24, 15)$; verification across more composite-diff cases is the next step.
-3. The conjecture concerns only the cyclic component of Collatz. The divergent component is independent and unaffected.
-4. The independence-of-cases assumption underlying our Poisson p-values is an approximation.
+1. The computations are exhaustive only for the listed parameter pairs.
+2. The local mutual-exclusion mechanism is explicitly checked in five squarefree composite cases.
+3. The Poisson and independence calculations are nominal benchmarks, not rigorous probability models.
+4. The conjecture concerns only the cyclic component of Collatz.
+5. The literature survey is preliminary.
 
 ## License
 
@@ -111,11 +201,11 @@ MIT. See `LICENSE`.
 ## Citation
 
 ```bibtex
-@misc{corcoll2026mutual,
-  author = {Oriol Corcoll Arias},
-  title  = {Mutual Exclusion of Local Divisibility Constraints in the Collatz Cycle Equation},
+@misc{corcoll2026collatzcorona,
+  author = {Corcoll Arias, Oriol},
+  title  = {Local Divisibility and Mutual Exclusion in the Collatz Corona: A Research Note},
   year   = {2026},
-  note   = {Working draft},
-  url    = {https://github.com/<USER>/collatz-mutual-exclusion}
+  note   = {Working draft / computational research note},
+  url    = {https://github.com/urtx13/collatz-corona-mutual-exclusion}
 }
 ```
